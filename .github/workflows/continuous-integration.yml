@@ -1,0 +1,85 @@
+name: continuous-integration
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  DOCKER: ""
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      cancel-in-progress: true
+      group: ${{ github.workflow }}-build-${{ github.event.pull_request.number || github.ref }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+      - run: cargo build --all --all-targets --all-features
+  lint:
+    runs-on: ubuntu-latest
+    concurrency:
+      cancel-in-progress: true
+      group: ${{ github.workflow }}-lint-${{ github.event.pull_request.number || github.ref }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with: 
+          toolchain: stable
+          components: clippy
+      - run: cargo clippy --all --all-targets --all-features -- -D warnings
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-machete
+      - run: cargo machete
+  test:
+    runs-on: ubuntu-latest
+    concurrency:
+      cancel-in-progress: true
+      group: ${{ github.workflow }}-test-${{ github.event.pull_request.number || github.ref }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-expand
+      - run: cargo test
+  fmt:
+    runs-on: ubuntu-latest
+    concurrency:
+      cancel-in-progress: true
+      group: ${{ github.workflow }}-fmt-${{ github.event.pull_request.number || github.ref }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with: 
+          toolchain: stable
+          components: rustfmt
+      - run: cargo fmt --all
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: taplo-cli@0.9.3
+      - name: Run cargo sort
+        run : taplo format
+      - name: Check for a diff
+        run: git diff --exit-code
+  cargo-deny-checks:
+    runs-on: ubuntu-latest
+    concurrency:
+      cancel-in-progress: true
+      group: ${{ github.workflow }}-cargo-deny-checks-${{ github.event.pull_request.number || github.ref }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with: 
+          toolchain: stable
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny
+      - name: cargo deny
+        run: cargo deny -L error --workspace check bans advisories sources

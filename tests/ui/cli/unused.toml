@@ -1,0 +1,11 @@
+args = ["integration-tests/unused", "-m"]
+bin.name = "cargo-neat"
+status.code = 1
+stderr = """
+Unused workspace dependencies :
+└── [CWD]/integration-tests/unused/Cargo.toml
+    ├── anyhow
+    └── clappen
+
+"""
+stdout = ""

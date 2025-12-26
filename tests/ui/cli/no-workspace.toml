@@ -1,0 +1,7 @@
+args = ["integration-tests/no-workspace"]
+bin.name = "cargo-neat"
+status.code = 2
+stderr = """
+Error: Failed to read virtual manifest at `[CWD]/integration-tests/no-workspace/Cargo.toml`. Maybe you don't use a cargo workspace?
+"""
+stdout = ""

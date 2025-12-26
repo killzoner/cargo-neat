@@ -1,0 +1,8 @@
+[package]
+edition = "2024"
+name = "second"
+version = "0.1.0"
+
+[dependencies]
+argh = { workspace = true, default-features = false }
+clappen = { workspace = true, default-features = false }

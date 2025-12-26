@@ -1,0 +1,21 @@
+args = ["--help"]
+bin.name = "cargo-neat"
+status.code = 0
+stderr = ""
+stdout = """
+Usage: cargo-neat [--version] [-m] [path]
+
+cargo-neat: Remove unused workspace dependencies
+
+Exit code:
+    0:  when no unused dependencies are found
+    1:  when at least one unused dependency is found
+    2:  on error
+
+Options:
+  --version         print version.
+  -m, --mandatory-workspace-dependencies
+                    allow only workspace dependency (ie "workspace = true")
+  --help, help      display usage information
+
+"""

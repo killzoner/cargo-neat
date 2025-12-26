@@ -1,0 +1,34 @@
+[package]
+authors = ["killzoner"]
+edition = "2024"
+name = "cargo-neat"
+resolver = "3"
+version = "0.1.0"
+
+description = "A tool to complement cargo-machete and remove unused workspace dependencies"
+documentation = "https://docs.rs/cargo-neat"
+keywords = ["cargo", "dependencies", "workspace"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/killzoner/cargo-neat"
+
+[dependencies]
+anyhow = { version = "1.0.100", default-features = false }
+argh = { version = "0.1.13", default-features = false, features = ["help"] }
+cargo = { version = "0.93.0", default-features = true }
+log = { version = "0.4.29", default-features = false }
+pretty_env_logger = { version = "0.5.0", default-features = false }
+termtree = { version = "0.5.1", default-features = false }
+
+[dev-dependencies]
+trycmd = { version = "0.15.11", default-features = false, features = [
+  "color-auto",
+  "diff",
+] }
+
+# optimized cargo wizard profile for MinSize
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "z"
+panic = "abort"
+strip = true

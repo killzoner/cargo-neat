@@ -1,0 +1,13 @@
+args = ["integration-tests/workspace-dep-only", "-m"]
+bin.name = "cargo-neat"
+status.code = 1
+stderr = """
+Non workspace dependencies :
+├── [CWD]/integration-tests/workspace-dep-only/first/Cargo.toml
+│   ├── anyhow
+│   └── argh
+└── [CWD]/integration-tests/workspace-dep-only/second/Cargo.toml
+    └── clappen
+
+"""
+stdout = ""

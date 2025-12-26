@@ -1,0 +1,8 @@
+args = ["integration-tests/clean", "-m"]
+bin.name = "cargo-neat"
+status.code = 0
+stderr = ""
+stdout = """
+No unused workspace dependencies
+No non workspace dependencies
+"""
