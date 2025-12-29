@@ -3,7 +3,7 @@ authors = ["killzoner"]
 edition = "2024"
 name = "cargo-neat"
 resolver = "3"
-version = "0.1.0"
+version = "0.1.1"
 
 description = "A tool to complement cargo-machete and remove unused workspace dependencies"
 documentation = "https://docs.rs/cargo-neat"
@@ -16,6 +16,9 @@ anyhow = { version = "1.0.100", default-features = false }
 argh = { version = "0.1.13", default-features = false, features = ["help"] }
 cargo = { version = "0.93.0", default-features = true }
 log = { version = "0.4.29", default-features = false }
+openssl = { version = "0.10.75", default-features = false, optional = true, features = [
+  "vendored",
+] }
 pretty_env_logger = { version = "0.5.0", default-features = false }
 termtree = { version = "0.5.1", default-features = false }
 
@@ -24,6 +27,14 @@ trycmd = { version = "0.15.11", default-features = false, features = [
   "color-auto",
   "diff",
 ] }
+
+[features]
+openssl = [
+  "dep:openssl",
+] # this feature is not used, but necessary for build using cargo library
+
+[package.metadata.cargo-machete]
+ignored = ["openssl"]
 
 # optimized cargo wizard profile for MinSize
 [profile.release]
