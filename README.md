@@ -43,8 +43,8 @@ Unused workspace dependencies :
 
 Non workspace dependencies :
 ├── /home/user/my-workspace/crate1/Cargo.toml
-│   ├── futures-lite
-│   └── argh
+│   ├── argh
+│   └── futures-lite
 └── /home/user/my-workspace/crate2/Cargo.toml
     └── clap
 ```
@@ -60,3 +60,11 @@ The **return code** gives an indication whether unused dependencies have been fo
 
 A lot of the code structure is drawn from the great [cargo-machete](https://github.com/bnjbvr/cargo-machete).
 If you don't already use it, you probably should.
+
+## Similar tools
+
+- [est31/cargo-udeps](https://github.com/est31/cargo-udeps): slow and requires Nightly rust, has no workspace features
+- [bnjbvr/cargo-machete](https://github.com/bnjbvr/cargo-machete): fast but does not remove unused workspace dependencies
+- [Boshen/cargo-shear](https://github.com/Boshen/cargo-shear): removes unused workspace dependencies, and can fix wrong dependency section, but cannot enforce using workspace dependencies only
+
+I would need a mix of `cargo-machete/shear` and `cargo-neat`. However `cargo-shear` is marked feature complete and not accepting new features, so here is `cargo-neat`.
