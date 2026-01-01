@@ -12,6 +12,7 @@ Features:
 
 - detect unused dependencies in `workspace.dependencies` when working with a cargo workspace
 - optionally enforce using only workspace dependency in your project (`-m` option)
+- optionally enforce using only workspace metadata for some sections in workspace packages (`-p` option)
 
 ## Installation
 
@@ -34,7 +35,7 @@ cargo neat my-directory
 ## Sample output
 
 ```bash
-cargo neat -m my-workspace
+cargo neat -m -p my-workspace
 
 Unused workspace dependencies :
 └── /home/user/my-workspace/Cargo.toml
@@ -47,6 +48,10 @@ Non workspace dependencies :
 │   └── futures-lite
 └── /home/user/my-workspace/crate2/Cargo.toml
     └── clap
+
+Non workspace metadata :
+├── /home/user/my-workspace/crate1/Cargo.toml
+    └── edition
 ```
 
 The **return code** gives an indication whether unused dependencies have been found:

@@ -1,6 +1,6 @@
 [workspace]
 members = ["first", "second"]
-package = { edition = "2024", version = "0.0.1" }
+package = { edition = "2024", version = "0.1.0" }
 resolver = "3"
 
 [workspace.dependencies]

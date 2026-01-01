@@ -1,7 +1,7 @@
 [package]
-edition = "2024"
+edition.workspace = true
 name = "second"
-version = "0.1.0"
+version.workspace = true
 
 [dependencies]
 argh = { workspace = true, default-features = false }

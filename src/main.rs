@@ -16,6 +16,8 @@ use std::path::PathBuf;
 use std::{env, vec};
 use termtree::Tree;
 
+const DEFAULT_PACKAGE_META: &str = "rust-version,edition,license,homepage,repository";
+
 #[derive(argh::FromArgs)]
 #[argh(description = r#"
 cargo-neat: Remove unused workspace dependencies
@@ -37,6 +39,14 @@ struct CliArgs {
     /// path to directory that must be scanned.
     #[argh(positional, greedy)]
     path: Option<PathBuf>,
+
+    /// mandatory workspace package metadata keys (ie "authors" for package.authors.workspace = true )
+    #[argh(switch, short = 'p')]
+    package_workspace_meta: bool,
+
+    /// keys for checking mandatory workspace package metadata, defaults to "rust-version,edition,license,homepage,repository"
+    #[argh(option, default = "DEFAULT_PACKAGE_META.to_string()")]
+    package_workspace_meta_values: String,
 }
 
 // cargo install --path .
@@ -68,7 +78,7 @@ fn run() -> CargoResult<bool> {
         std::process::exit(0);
     }
 
-    let path = match args.path {
+    let args_path = match args.path {
         Some(dir) => {
             debug!("Running from location {:?}", dir);
 
@@ -82,9 +92,12 @@ fn run() -> CargoResult<bool> {
         }
     };
 
+    let args_package_workspace_meta: Vec<_> =
+        args.package_workspace_meta_values.split(",").collect();
+
     let gctx = GlobalContext::default()?;
     // Load the workspace from the current directory
-    let ws = Workspace::new(&path.join("Cargo.toml"), &gctx)?;
+    let ws = Workspace::new(&args_path.join("Cargo.toml"), &gctx)?;
 
     // Get the root manifest path (root Cargo.toml)
     let root_cargo_toml = ws.root_manifest();
@@ -124,6 +137,8 @@ fn run() -> CargoResult<bool> {
             let mut unused_workspace_dependencies = workspace_dependencies;
             let mut mandatory_workspace_dependencies_issues: HashMap<InternedString, Vec<String>> =
                 HashMap::new();
+            let mut mandatory_workspace_meta_issues: HashMap<InternedString, Vec<String>> =
+                HashMap::new();
 
             for pkg in workspace_members {
                 let local_manifest =
@@ -146,6 +161,25 @@ fn run() -> CargoResult<bool> {
                     }
                 }
 
+                if args.package_workspace_meta {
+                    let package_meta = local_manifest.manifest.data.get("package").unwrap();
+
+                    for key in &args_package_workspace_meta {
+                        let key_exists = package_meta.get(key).is_some();
+                        let is_workspace_meta = package_meta
+                            .get(key)
+                            .and_then(|e| e.get("workspace").and_then(|e| e.as_bool()))
+                            .unwrap_or_default();
+
+                        if key_exists && !is_workspace_meta {
+                            let values = mandatory_workspace_meta_issues
+                                .entry(pkg.name())
+                                .or_insert(vec![]);
+                            values.push(key.to_string());
+                        }
+                    }
+                }
+
                 for dep in pkg.dependencies() {
                     let name = dep.package_name();
                     let name: &str = name.as_ref();
@@ -155,11 +189,16 @@ fn run() -> CargoResult<bool> {
 
             if unused_workspace_dependencies.is_empty()
                 && mandatory_workspace_dependencies_issues.is_empty()
+                && mandatory_workspace_meta_issues.is_empty()
             {
                 println!("No unused workspace dependencies");
 
                 if args.mandatory_workspace_dependencies {
                     println!("No non workspace dependencies");
+                }
+
+                if args.package_workspace_meta {
+                    println!("No non workspace metadata");
                 }
 
                 Ok(false)
@@ -211,6 +250,34 @@ fn run() -> CargoResult<bool> {
                         tree(
                             InternedString::new("Non workspace dependencies :"),
                             &mandatory_workspace_dependencies_issues
+                        )?
+                    );
+                }
+
+                if !mandatory_workspace_meta_issues.is_empty() {
+                    let parent_folder = root_cargo_toml
+                        .parent()
+                        .ok_or(anyhow!("cannot get root workspace folder"))?;
+
+                    let mut mandatory_workspace_meta_issues: Vec<_> =
+                        mandatory_workspace_meta_issues
+                            .into_iter()
+                            .flat_map(|e| {
+                                PathBuf::from(parent_folder)
+                                    .join(e.0)
+                                    .join("Cargo.toml")
+                                    .to_str()
+                                    .ok_or(anyhow!("cannot get root workspace folder"))
+                                    .map(|res| (InternedString::new(res), e.1))
+                            })
+                            .collect();
+                    mandatory_workspace_meta_issues.sort();
+
+                    eprintln!(
+                        "{}",
+                        tree(
+                            InternedString::new("Non workspace metadata :"),
+                            &mandatory_workspace_meta_issues
                         )?
                     );
                 }
