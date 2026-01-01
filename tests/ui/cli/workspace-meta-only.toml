@@ -1,0 +1,13 @@
+args = ["integration-tests/workspace-dep-only", "-p"]
+bin.name = "cargo-neat"
+status.code = 1
+stderr = """
+Non workspace metadata :
+├── [CWD]/integration-tests/workspace-dep-only/first/Cargo.toml
+│   └── edition
+└── [CWD]/integration-tests/workspace-dep-only/second/Cargo.toml
+    ├── edition
+    └── homepage
+
+"""
+stdout = ""

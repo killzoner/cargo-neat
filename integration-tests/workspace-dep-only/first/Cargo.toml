@@ -1,5 +1,6 @@
 [package]
 edition = "2024"
+homepage.workspace = true
 name = "first"
 version = "0.1.0"
 

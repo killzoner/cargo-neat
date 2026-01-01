@@ -1,8 +1,8 @@
-args = ["integration-tests/clean", "-m"]
+args = ["integration-tests/clean", "-m", "-p"]
 bin.name = "cargo-neat"
-status.code = 0
 stderr = ""
 stdout = """
 No unused workspace dependencies
 No non workspace dependencies
+No non workspace metadata
 """
