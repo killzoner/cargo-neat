@@ -18,7 +18,9 @@ Features:
 
 Install with cargo:
 
-`cargo install cargo-neat`
+```bash
+cargo install cargo-neat --locked
+```
 
 ## Usage
 
