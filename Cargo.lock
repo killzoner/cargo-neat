@@ -305,6 +305,7 @@ dependencies = [
  "libgit2-sys",
  "memchr",
  "opener",
+ "openssl",
  "os_info",
  "pasetors",
  "pathdiff",
@@ -390,13 +391,12 @@ dependencies = [
 
 [[package]]
 name = "cargo-neat"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "argh",
  "cargo",
  "log",
- "openssl",
  "pretty_env_logger",
  "termtree",
  "trycmd",
