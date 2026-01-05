@@ -1,0 +1,17 @@
+args = ["integration-tests/subfolder", "-p", "-m"]
+bin.name = "cargo-neat"
+status.code = 1
+stderr = """
+Non workspace dependencies :
+└── [CWD]/integration-tests/subfolder/first/Cargo.toml
+    ├── anyhow
+    └── argh
+
+Non workspace metadata :
+├── [CWD]/integration-tests/subfolder/first/Cargo.toml
+│   └── edition
+└── [CWD]/integration-tests/subfolder/nested/second/Cargo.toml
+    └── edition
+
+"""
+stdout = ""

@@ -141,6 +141,12 @@ fn run() -> CargoResult<bool> {
                 HashMap::new();
 
             for pkg in workspace_members {
+                let pkg_manifest_path = InternedString::new(
+                    pkg.manifest_path()
+                        .to_str()
+                        .ok_or(anyhow!("cannot get package manifest path"))?,
+                );
+
                 let local_manifest =
                     cargo::util::toml_mut::manifest::LocalManifest::try_new(pkg.manifest_path())?;
 
@@ -154,7 +160,7 @@ fn run() -> CargoResult<bool> {
                     for (dep, source) in deps_other {
                         if let Source::Registry(_) = source {
                             let values = mandatory_workspace_dependencies_issues
-                                .entry(pkg.name())
+                                .entry(pkg_manifest_path)
                                 .or_insert(vec![]);
                             values.push(dep);
                         }
@@ -173,7 +179,7 @@ fn run() -> CargoResult<bool> {
 
                         if key_exists && !is_workspace_meta {
                             let values = mandatory_workspace_meta_issues
-                                .entry(pkg.name())
+                                .entry(pkg_manifest_path)
                                 .or_insert(vec![]);
                             values.push(key.to_string());
                         }
@@ -227,21 +233,9 @@ fn run() -> CargoResult<bool> {
                 }
 
                 if !mandatory_workspace_dependencies_issues.is_empty() {
-                    let parent_folder = root_cargo_toml
-                        .parent()
-                        .ok_or(anyhow!("cannot get root workspace folder"))?;
-
                     let mut mandatory_workspace_dependencies_issues: Vec<_> =
                         mandatory_workspace_dependencies_issues
                             .into_iter()
-                            .flat_map(|e| {
-                                PathBuf::from(parent_folder)
-                                    .join(e.0)
-                                    .join("Cargo.toml")
-                                    .to_str()
-                                    .ok_or(anyhow!("cannot get root workspace folder"))
-                                    .map(|res| (InternedString::new(res), e.1))
-                            })
                             .collect();
                     mandatory_workspace_dependencies_issues.sort();
 
@@ -255,22 +249,8 @@ fn run() -> CargoResult<bool> {
                 }
 
                 if !mandatory_workspace_meta_issues.is_empty() {
-                    let parent_folder = root_cargo_toml
-                        .parent()
-                        .ok_or(anyhow!("cannot get root workspace folder"))?;
-
                     let mut mandatory_workspace_meta_issues: Vec<_> =
-                        mandatory_workspace_meta_issues
-                            .into_iter()
-                            .flat_map(|e| {
-                                PathBuf::from(parent_folder)
-                                    .join(e.0)
-                                    .join("Cargo.toml")
-                                    .to_str()
-                                    .ok_or(anyhow!("cannot get root workspace folder"))
-                                    .map(|res| (InternedString::new(res), e.1))
-                            })
-                            .collect();
+                        mandatory_workspace_meta_issues.into_iter().collect();
                     mandatory_workspace_meta_issues.sort();
 
                     eprintln!(
