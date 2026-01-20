@@ -63,6 +63,29 @@ The **return code** gives an indication whether unused dependencies have been fo
 - 2 if there was an error during processing (in which case there's no indication whether any unused
   dependency was found or not).
 
+## Usage with github actions
+
+```yaml
+name: Cargo neat checks
+on:
+  pull_request: { branches: "*" }
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: taiki-e/checkout-action@v1 # or standard actions/checkout
+      - name: Install cargo neat
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-neat
+      - name: Run cargo neat
+        run: cargo neat -m -p
+```
+
+A working example can be found [in cargo-neat CI](https://github.com/killzoner/cargo-neat/blob/master/.github/workflows/continuous-integration.yml#L90)
+
 ## Inspiration
 
 A lot of the code structure is drawn from the great [cargo-machete](https://github.com/bnjbvr/cargo-machete).

@@ -87,3 +87,12 @@ jobs:
           tool: cargo-deny
       - name: cargo deny
         run: cargo deny -L error --workspace check bans advisories sources
+  install-action-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-neat
+      - working-directory: integration-tests/clean
+        run: cargo neat -m -p
