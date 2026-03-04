@@ -10,8 +10,8 @@ use cargo::util::context::GlobalContext;
 use cargo::util::interning::InternedString;
 use cargo::util::toml::read_manifest;
 use cargo::util::toml_mut::dependency::Source;
-use log::debug;
-use std::collections::{HashMap, HashSet};
+use log::{debug, info};
+use std::collections::{BTreeSet, HashMap};
 use std::path::PathBuf;
 use std::{env, vec};
 use termtree::Tree;
@@ -128,7 +128,7 @@ fn run() -> CargoResult<bool> {
                 .map(|e| {
                     e.keys()
                         .map(|e| e.clone().into_inner())
-                        .collect::<HashSet<_>>()
+                        .collect::<BTreeSet<_>>()
                 })
                 .unwrap_or_default();
 
@@ -197,14 +197,14 @@ fn run() -> CargoResult<bool> {
                 && mandatory_workspace_dependencies_issues.is_empty()
                 && mandatory_workspace_meta_issues.is_empty()
             {
-                println!("No unused workspace dependencies");
+                info!("No unused workspace dependencies");
 
                 if args.mandatory_workspace_dependencies {
-                    println!("No non workspace dependencies");
+                    info!("No non workspace dependencies");
                 }
 
                 if args.package_workspace_meta {
-                    println!("No non workspace metadata");
+                    info!("No non workspace metadata");
                 }
 
                 Ok(false)
