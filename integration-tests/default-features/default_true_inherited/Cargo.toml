@@ -1,0 +1,8 @@
+[package]
+edition.workspace = true
+name = "default_true_inherited"
+version.workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+trycmd = { workspace = true }

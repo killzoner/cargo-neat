@@ -1,0 +1,18 @@
+args = ["integration-tests/default-features", "-f"]
+bin.name = "cargo-neat"
+status.code = 1
+stderr = """
+Unused workspace dependencies :
+└── [CWD]/integration-tests/default-features/Cargo.toml
+    └── thiserror
+
+Workspace default-features enabled :
+├── [CWD]/integration-tests/default-features/Cargo.toml
+│   ├── anyhow
+│   ├── thiserror
+│   └── trycmd
+└── [CWD]/integration-tests/default-features/default_false_override_true/Cargo.toml
+    └── argh
+
+"""
+stdout = ""
