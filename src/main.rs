@@ -47,6 +47,10 @@ struct CliArgs {
     /// keys for checking mandatory workspace package metadata, defaults to "rust-version,edition,license,homepage,repository"
     #[argh(option, default = "DEFAULT_PACKAGE_META.to_string()")]
     package_workspace_meta_values: String,
+
+    /// always use explicit feature (ie "default-features = false")
+    #[argh(switch, short = 'f')]
+    mandatory_no_default_features: bool,
 }
 
 // cargo install --path .
@@ -119,16 +123,23 @@ fn run() -> CargoResult<bool> {
             root_cargo_toml.display()
         )),
         cargo::core::EitherManifest::Virtual(virtual_manifest) => {
-            let workspace_dependencies = virtual_manifest
+            let workspace_dependencies_toml = virtual_manifest
                 .document()
                 .get_ref()
                 .get("workspace")
                 .and_then(|e| e.get_ref().get("dependencies"))
-                .and_then(|e| e.get_ref().as_table())
+                .and_then(|e| e.get_ref().as_table());
+            let root_cargo_toml = InternedString::new(
+                root_cargo_toml
+                    .to_str()
+                    .ok_or(anyhow!("cannot get root workspace"))?,
+            );
+
+            let workspace_dependencies = workspace_dependencies_toml
                 .map(|e| {
                     e.keys()
                         .map(|e| e.clone().into_inner())
-                        .collect::<BTreeSet<_>>()
+                        .collect::<BTreeSet<_>>() // use BTreeSet to keep deterministic order for debug print
                 })
                 .unwrap_or_default();
 
@@ -139,6 +150,43 @@ fn run() -> CargoResult<bool> {
                 HashMap::new();
             let mut mandatory_workspace_meta_issues: HashMap<InternedString, Vec<String>> =
                 HashMap::new();
+            let mut default_features_workspace_issues: HashMap<InternedString, Vec<String>> =
+                HashMap::new();
+
+            // check dependencies always opt out from default-features in root package
+            if args.mandatory_no_default_features {
+                // we need to check from root package "default-features" if there are "true" value
+                // because a sub package cannot override this, it errors with
+                // `default-features = false` cannot override workspace's `default-features`
+                let workspace_default_features_true = workspace_dependencies_toml
+                    .into_iter()
+                    .flatten()
+                    .map(|(name, value)| {
+                        let default_features = value
+                            .get_ref()
+                            .get("default-features")
+                            .and_then(|v| v.get_ref().as_bool());
+                        (name.get_ref(), default_features)
+                    })
+                    .filter(|(_package, default_features)| default_features.unwrap_or(true))
+                    .map(|e| e.0)
+                    .collect::<BTreeSet<_>>(); // use BTreeSet to keep deterministic order for debug print
+
+                debug!(
+                    "Workspace opt in default features : {:?}",
+                    workspace_default_features_true
+                );
+
+                if !workspace_default_features_true.is_empty() {
+                    default_features_workspace_issues.insert(
+                        root_cargo_toml,
+                        workspace_default_features_true
+                            .iter()
+                            .map(|e| e.to_string())
+                            .collect(),
+                    );
+                }
+            }
 
             for pkg in workspace_members {
                 let pkg_manifest_path = InternedString::new(
@@ -147,9 +195,17 @@ fn run() -> CargoResult<bool> {
                         .ok_or(anyhow!("cannot get package manifest path"))?,
                 );
 
+                // check unused workspace dependencies
+                for dep in pkg.dependencies() {
+                    let name = dep.package_name();
+                    let name: &str = name.as_ref();
+                    unused_workspace_dependencies.remove(name);
+                }
+
                 let local_manifest =
                     cargo::util::toml_mut::manifest::LocalManifest::try_new(pkg.manifest_path())?;
 
+                // check dependencies always inherited from workspace
                 if args.mandatory_workspace_dependencies {
                     let deps_other: Vec<_> = local_manifest
                         .get_dependencies(&workspace, &Features::default())
@@ -167,6 +223,7 @@ fn run() -> CargoResult<bool> {
                     }
                 }
 
+                // check selected meta items are using workspace inheritance
                 if args.package_workspace_meta {
                     let package_meta = local_manifest.manifest.data.get("package").unwrap();
 
@@ -186,16 +243,29 @@ fn run() -> CargoResult<bool> {
                     }
                 }
 
-                for dep in pkg.dependencies() {
-                    let name = dep.package_name();
-                    let name: &str = name.as_ref();
-                    unused_workspace_dependencies.remove(name);
+                // check dependencies always opt out from default-features
+                if args.mandatory_no_default_features {
+                    let deps: Vec<_> = local_manifest
+                        .get_dependencies(&workspace, &Features::default())
+                        .flat_map(|dep| dep.2.map(|e| (dep.0, e.default_features)))
+                        .filter_map(|dep| dep.1.map(|e| (dep.0, e)))
+                        .collect();
+
+                    for (dep, default_features) in deps {
+                        if default_features {
+                            let values = default_features_workspace_issues
+                                .entry(pkg_manifest_path)
+                                .or_insert(vec![]);
+                            values.push(dep);
+                        }
+                    }
                 }
             }
 
             if unused_workspace_dependencies.is_empty()
                 && mandatory_workspace_dependencies_issues.is_empty()
                 && mandatory_workspace_meta_issues.is_empty()
+                && default_features_workspace_issues.is_empty()
             {
                 info!("No unused workspace dependencies");
 
@@ -205,6 +275,10 @@ fn run() -> CargoResult<bool> {
 
                 if args.package_workspace_meta {
                     info!("No non workspace metadata");
+                }
+
+                if args.mandatory_no_default_features {
+                    info!("No default-features enabled");
                 }
 
                 Ok(false)
@@ -220,14 +294,7 @@ fn run() -> CargoResult<bool> {
                         "{}",
                         tree(
                             InternedString::new("Unused workspace dependencies :"),
-                            &[(
-                                InternedString::new(
-                                    root_cargo_toml
-                                        .to_str()
-                                        .ok_or(anyhow!("cannot get root workspace"))?
-                                ),
-                                unused_workspace_dependencies
-                            )]
+                            &[(root_cargo_toml, unused_workspace_dependencies)]
                         )?
                     );
                 }
@@ -258,6 +325,20 @@ fn run() -> CargoResult<bool> {
                         tree(
                             InternedString::new("Non workspace metadata :"),
                             &mandatory_workspace_meta_issues
+                        )?
+                    );
+                }
+
+                if !default_features_workspace_issues.is_empty() {
+                    let mut default_features_workspace_issues: Vec<_> =
+                        default_features_workspace_issues.into_iter().collect();
+                    default_features_workspace_issues.sort();
+
+                    eprintln!(
+                        "{}",
+                        tree(
+                            InternedString::new("Workspace default-features enabled :"),
+                            &default_features_workspace_issues
                         )?
                     );
                 }

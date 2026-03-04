@@ -3,7 +3,7 @@ bin.name = "cargo-neat"
 status.code = 0
 stderr = ""
 stdout = """
-Usage: cargo-neat [--version] [-m] [-p] [--package-workspace-meta-values <package-workspace-meta-values>] [path]
+Usage: cargo-neat [--version] [-m] [-p] [--package-workspace-meta-values <package-workspace-meta-values>] [-f] [path]
 
 cargo-neat: Remove unused workspace dependencies
 
@@ -23,6 +23,8 @@ Options:
                     keys for checking mandatory workspace package metadata,
                     defaults to
                     "rust-version,edition,license,homepage,repository"
+  -f, --mandatory-no-default-features
+                    always use explicit feature (ie "default-features = false")
   --help, help      display usage information
 
 """

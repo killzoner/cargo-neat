@@ -1,0 +1,7 @@
+[package]
+edition.workspace = true
+name = "default_false_inherited"
+version.workspace = true
+
+[dependencies]
+argh = { workspace = true }

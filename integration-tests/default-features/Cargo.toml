@@ -1,0 +1,20 @@
+[workspace]
+members = [
+  "default_false_inherited",
+  "default_false_override_true",
+  "default_true_inherited",
+  # this case is handled by forbidding root workspace default-features opt-in,
+  # since we cannot override (errors with "cannot override workspace's `default-features`")
+  # "default_true_override_false", 
+]
+package = { edition = "2024", version = "0.1.0" }
+resolver = "3"
+
+[workspace.dependencies]
+anyhow = { version = "1.0.102" }                            # default true
+argh = { version = "0.1.14", default-features = false }     # default false inherited
+thiserror = { version = "2.0.18", default-features = true } # default true inherited
+trycmd = { version = "1.0.1", default-features = true }     # default true inherited
+
+[workspace.metadata.cargo-machete]
+ignored = ["anyhow", "argh", "trycmd"]
