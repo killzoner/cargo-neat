@@ -1,8 +1,15 @@
 args = ["integration-tests/clean", "-m", "-p"]
 bin.name = "cargo-neat"
-stderr = ""
-stdout = """
-No unused workspace dependencies
-No non workspace dependencies
-No non workspace metadata
+stderr = """
+ DEBUG cargo_neat > Running from location "integration-tests/clean"
+ DEBUG cargo_neat > Root workspace Cargo.toml: "[CWD]/integration-tests/clean/Cargo.toml"
+ DEBUG cargo_neat > Workspace members : ["first", "second"]
+ DEBUG cargo_neat > Workspace dependencies : {"anyhow", "argh", "clappen"}
+ INFO  cargo_neat > No unused workspace dependencies
+ INFO  cargo_neat > No non workspace dependencies
+ INFO  cargo_neat > No non workspace metadata
 """
+stdout = ""
+
+[env]
+add = { RUST_LOG = "debug" }
