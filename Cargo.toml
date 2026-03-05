@@ -13,7 +13,7 @@ repository = "https://github.com/killzoner/cargo-neat"
 
 [dependencies]
 anyhow = { version = "1.0.102", default-features = false }
-argh = { version = "0.1.14", default-features = false, features = ["help"] }
+argh = { version = "0.1.15", default-features = false, features = ["help"] }
 cargo = { version = "0.94.0", default-features = true }
 log = { version = "0.4.29", default-features = false }
 pretty_env_logger = { version = "0.5.0", default-features = false }
