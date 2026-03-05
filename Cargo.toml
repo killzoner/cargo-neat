@@ -3,7 +3,7 @@ authors = ["killzoner"]
 edition = "2024"
 name = "cargo-neat"
 resolver = "3"
-version = "0.3.1"
+version = "0.3.2"
 
 description = "A tool to complement cargo-machete and remove unused workspace dependencies"
 documentation = "https://docs.rs/cargo-neat"

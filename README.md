@@ -38,7 +38,7 @@ cargo neat my-directory
 ## Sample output
 
 ```bash
-cargo neat -m -p my-workspace
+cargo neat -m -p -f my-workspace
 
 Unused workspace dependencies :
 └── /home/user/my-workspace/Cargo.toml
@@ -53,8 +53,14 @@ Non workspace dependencies :
     └── clap
 
 Non workspace metadata :
-├── /home/user/my-workspace/crate1/Cargo.toml
+└── /home/user/my-workspace/crate1/Cargo.toml
     └── edition
+
+Workspace default-features enabled :
+├── /home/user/my-workspace/Cargo.toml
+│   └── trycmd
+└── /home/user/my-workspace/crate1/Cargo.toml
+    └── argh
 ```
 
 The **return code** gives an indication whether unused dependencies have been found:
@@ -82,7 +88,7 @@ jobs:
         with:
           tool: cargo-neat
       - name: Run cargo neat
-        run: cargo neat -m -p
+        run: cargo neat -m -p -f
 ```
 
 A working example can be found [in cargo-neat CI](https://github.com/killzoner/cargo-neat/blob/master/.github/workflows/continuous-integration.yml#L90)
