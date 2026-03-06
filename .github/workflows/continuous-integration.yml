@@ -95,4 +95,4 @@ jobs:
         with:
           tool: cargo-neat
       - working-directory: integration-tests/clean
-        run: cargo neat -m -p
+        run: cargo neat -m -p -f
