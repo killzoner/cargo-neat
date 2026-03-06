@@ -125,6 +125,7 @@ fn run() -> CargoResult<bool> {
         cargo::core::EitherManifest::Virtual(virtual_manifest) => {
             let workspace_dependencies_toml = virtual_manifest
                 .document()
+                .ok_or(anyhow!("cannot get manifest document"))?
                 .get_ref()
                 .get("workspace")
                 .and_then(|e| e.get_ref().get("dependencies"))
