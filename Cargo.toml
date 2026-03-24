@@ -20,7 +20,7 @@ pretty_env_logger = { version = "0.5.0", default-features = false }
 termtree = { version = "1.0.0", default-features = false }
 
 [dev-dependencies]
-trycmd = { version = "1.1.1", default-features = false, features = [
+trycmd = { version = "1.2.0", default-features = false, features = [
   "color-auto",
   "diff",
 ] }
