@@ -1,0 +1,24 @@
+args = ["integration-tests/root-package-workspace", "-m", "-p", "-f"]
+bin.name = "cargo-neat"
+status.code = 1
+stderr = """
+Non workspace dependencies :
+├── [CWD]/integration-tests/root-package-workspace/Cargo.toml
+│   └── anyhow
+└── [CWD]/integration-tests/root-package-workspace/second/Cargo.toml
+    └── clappen
+
+Non workspace metadata :
+├── [CWD]/integration-tests/root-package-workspace/Cargo.toml
+│   └── edition
+└── [CWD]/integration-tests/root-package-workspace/second/Cargo.toml
+    ├── edition
+    └── homepage
+
+Workspace default-features enabled :
+└── [CWD]/integration-tests/root-package-workspace/Cargo.toml
+    ├── anyhow
+    └── clappen
+
+"""
+stdout = ""

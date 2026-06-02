@@ -1,0 +1,23 @@
+[workspace]
+members = ["second", "third"]
+package = { edition = "2024", version = "0.1.0", homepage = "root" }
+resolver = "3"
+
+[package]
+edition = "2024"
+homepage.workspace = true
+name = "first"
+version = "0.1.0"
+
+[dependencies]
+anyhow = { version = "1.0.100" }                        # default-features true (inherited)
+argh = { workspace = true, default-features = false }
+clappen = { workspace = true, default-features = true }
+
+[workspace.dependencies]
+anyhow = { version = "1.0.100" }
+argh = { version = "0.1.13", default-features = false }
+clappen = { version = "0.1.3", default-features = false }
+
+[package.metadata.cargo-machete]
+ignored = ["anyhow", "argh", "clappen"]
