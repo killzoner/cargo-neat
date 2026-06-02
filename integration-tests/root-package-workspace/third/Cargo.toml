@@ -1,0 +1,10 @@
+[package]
+edition.workspace = true
+homepage.workspace = true
+name = "third"
+
+[dependencies]
+clappen = { workspace = true, default-features = false }
+
+[package.metadata.cargo-machete]
+ignored = ["clappen"]
