@@ -297,9 +297,9 @@ checksum = "1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33"
 
 [[package]]
 name = "cargo"
-version = "0.97.0"
+version = "0.97.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad661aa9c0b3b29713f84e871f82d46998e5c397d7613824a6ac1ba12cb89557"
+checksum = "17e884ee08e07c51a4ef6cb35894b29cdeb90616dedb16cde41e27874a8404e1"
 dependencies = [
  "anstream",
  "anstyle",
@@ -476,9 +476,9 @@ dependencies = [
 
 [[package]]
 name = "cargo-util-schemas"
-version = "0.13.1"
+version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fb0eba34f25fc0e8f0b7f7ac2aad4343301466512928c8435b56253f2d7899b"
+checksum = "37156912bbbffb4d28a143546837050f267c218c0862258385d51a482e6646f2"
 dependencies = [
  "jiff",
  "semver",
