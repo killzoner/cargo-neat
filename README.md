@@ -63,12 +63,11 @@ Workspace default-features enabled :
     └── argh
 ```
 
-The **return code** gives an indication whether unused dependencies have been found:
+The **return code** indicates whether any issue was found:
 
-- 0 if it found no unused dependencies,
-- 1 if it found at least one unused dependency,
-- 2 if there was an error during processing (in which case there's no indication whether any unused
-  dependency was found or not).
+- 0 if it found no issue,
+- 1 if it found at least one issue,
+- 2 if there was an error during processing (in which case there's no indication whether any issue was found or not).
 
 ## Usage with github actions
 

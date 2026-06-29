@@ -5,9 +5,9 @@ name = "cargo-neat"
 resolver = "3"
 version = "0.4.0"
 
-description = "A tool to complement cargo-machete and remove unused workspace dependencies"
+description = "Keep your cargo workspace neat: find unused dependencies and enforce workspace consistency"
 documentation = "https://docs.rs/cargo-neat"
-keywords = ["cargo", "dependencies", "workspace"]
+keywords = ["cargo", "dependencies", "workspace", "lint"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/killzoner/cargo-neat"
 

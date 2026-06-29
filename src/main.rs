@@ -20,11 +20,11 @@ const DEFAULT_PACKAGE_META: &str = "rust-version,edition,license,homepage,reposi
 
 #[derive(argh::FromArgs)]
 #[argh(description = r#"
-cargo-neat: Remove unused workspace dependencies
+cargo-neat: Keep your cargo workspace neat
 
 Exit code:
-    0:  when no unused dependencies are found
-    1:  when at least one unused dependency is found
+    0:  when no issue is found
+    1:  when at least one issue is found
     2:  on error
 "#)]
 struct CliArgs {
