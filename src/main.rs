@@ -10,7 +10,7 @@ use cargo::util::context::GlobalContext;
 use cargo::util::interning::InternedString;
 use cargo::util::toml::read_manifest;
 use cargo::util::toml_mut::dependency::Source;
-use log::{debug, info};
+use log::{debug, info, trace};
 use std::collections::{BTreeSet, HashMap};
 use std::path::PathBuf;
 use std::{env, vec};
@@ -44,9 +44,10 @@ struct CliArgs {
     #[argh(switch, short = 'p')]
     package_workspace_meta: bool,
 
-    /// keys for checking mandatory workspace package metadata, defaults to "rust-version,edition,license,homepage,repository"
-    #[argh(option, default = "DEFAULT_PACKAGE_META.to_string()")]
-    package_workspace_meta_values: String,
+    /// keys for checking mandatory workspace package metadata,
+    /// resolved in order: cli, then workspace.metadata.cargo-neat.meta-values, then default (see README).
+    #[argh(option)]
+    package_workspace_meta_values: Option<String>,
 
     /// always use explicit feature (ie "default-features = false")
     #[argh(switch, short = 'f')]
@@ -96,8 +97,10 @@ fn run() -> CargoResult<bool> {
         }
     };
 
-    let args_package_workspace_meta: Vec<_> =
-        args.package_workspace_meta_values.split(",").collect();
+    let args_package_workspace_meta: Option<Vec<&str>> = args
+        .package_workspace_meta_values
+        .as_deref()
+        .map(|s| s.split(",").collect());
 
     let gctx = GlobalContext::default()?;
     // Load the workspace from the current directory
@@ -112,6 +115,22 @@ fn run() -> CargoResult<bool> {
     let workspace_members: Vec<_> = workspace.members().collect();
     let workspace_member_names: Vec<_> = workspace_members.iter().map(|e| e.name()).collect();
     debug!("Workspace members : {:?}", workspace_member_names);
+
+    let workspace_meta_values: Option<Vec<&str>> = workspace
+        .custom_metadata()
+        .and_then(|meta| meta.get("cargo-neat"))
+        .and_then(|cfg| cfg.get("meta-values"))
+        .and_then(|values| values.as_array())
+        .map(|values| values.iter().filter_map(|v| v.as_str()).collect());
+
+    trace!("Workspace config meta-values : {:?}", workspace_meta_values);
+
+    // order: cli then [workspace.metadata.cargo-neat].meta-values then DEFAULT_PACKAGE_META
+    let args_package_workspace_meta: Vec<&str> = args_package_workspace_meta
+        .or(workspace_meta_values)
+        .unwrap_or_else(|| DEFAULT_PACKAGE_META.split(",").collect());
+
+    debug!("Workspace meta-values : {:?}", args_package_workspace_meta);
 
     // read virtual manifest
     let source_id = SourceId::for_manifest_path(root_cargo_toml)?;

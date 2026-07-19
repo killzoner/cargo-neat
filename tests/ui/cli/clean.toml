@@ -4,6 +4,7 @@ stderr = """
  DEBUG cargo_neat > Running from location "integration-tests/clean"
  DEBUG cargo_neat > Root workspace Cargo.toml: "[CWD]/integration-tests/clean/Cargo.toml"
  DEBUG cargo_neat > Workspace members : ["first", "second"]
+ DEBUG cargo_neat > Workspace meta-values : ["rust-version", "edition", "license", "homepage", "repository"]
  DEBUG cargo_neat > Workspace dependencies : {"anyhow", "argh", "clappen"}
  DEBUG cargo_neat > Workspace opt in default features : {}
  INFO  cargo_neat > No unused workspace dependencies

@@ -1,0 +1,8 @@
+[package]
+edition.workspace = true
+license = "MIT"          # licence is OK from workspace override
+name = "first"
+version.workspace = true
+
+[dependencies]
+anyhow = { workspace = true, default-features = false }
