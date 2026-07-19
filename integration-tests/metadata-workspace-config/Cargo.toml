@@ -1,0 +1,13 @@
+[workspace]
+members = ["first"]
+package = { edition = "2024", version = "0.1.0" }
+resolver = "3"
+
+[workspace.dependencies]
+anyhow = { version = "1.0.100", default-features = false }
+
+[workspace.metadata.cargo-machete]
+ignored = ["anyhow"]
+
+[workspace.metadata.cargo-neat]
+meta-values = ["edition", "version"]
