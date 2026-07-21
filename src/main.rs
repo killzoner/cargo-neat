@@ -10,7 +10,7 @@ use cargo::util::context::GlobalContext;
 use cargo::util::interning::InternedString;
 use cargo::util::toml::read_manifest;
 use cargo::util::toml_mut::dependency::Source;
-use log::{debug, info, trace};
+use log::{debug, info, trace, warn};
 use std::collections::{BTreeSet, HashMap};
 use std::path::PathBuf;
 use std::{env, vec};
@@ -111,7 +111,15 @@ fn run() -> CargoResult<bool> {
 
     debug!("Root workspace Cargo.toml: {:?}", root_cargo_toml);
 
-    let workspace = cargo::core::Workspace::new(root_cargo_toml, &gctx)?;
+    let mut workspace = cargo::core::Workspace::new(root_cargo_toml, &gctx)?;
+    let workspace_usage = workspace
+        .load_workspace_config()
+        .map(|e| e.is_some())
+        .unwrap_or_default();
+
+    debug!("Workspace usage: {workspace_usage:?}",);
+
+    let workspace = workspace;
     let workspace_members: Vec<_> = workspace.members().collect();
     let workspace_member_names: Vec<_> = workspace_members.iter().map(|e| e.name()).collect();
     debug!("Workspace members : {:?}", workspace_member_names);
@@ -144,6 +152,7 @@ fn run() -> CargoResult<bool> {
 
     run_checks(
         &workspace,
+        workspace_usage,
         &manifest,
         root_cargo_toml,
         &args,
@@ -153,6 +162,7 @@ fn run() -> CargoResult<bool> {
 
 fn run_checks(
     workspace: &Workspace,
+    workspace_usage: bool,
     manifest: &EitherManifest,
     root_cargo_toml: InternedString,
     args: &CliArgs,
@@ -222,6 +232,16 @@ fn run_checks(
         }
     }
 
+    if args.mandatory_workspace_dependencies && !workspace_usage {
+        warn!(
+            "Skipping \"mandatory_workspace_dependencies\" (-m) check because no [workspace] detected"
+        );
+    }
+
+    if args.package_workspace_meta && !workspace_usage {
+        warn!("Skipping \"package_workspace_meta\" (-p) check because no [workspace] detected");
+    }
+
     for pkg in workspace.members() {
         let pkg_manifest_path = InternedString::new(
             pkg.manifest_path()
@@ -240,7 +260,7 @@ fn run_checks(
             cargo::util::toml_mut::manifest::LocalManifest::try_new(pkg.manifest_path())?;
 
         // check dependencies always inherited from workspace
-        if args.mandatory_workspace_dependencies {
+        if args.mandatory_workspace_dependencies && workspace_usage {
             let deps_other: Vec<_> = local_manifest
                 .get_dependencies(workspace, &Features::default())
                 .flat_map(|dep| dep.2.map(|e| (dep.0, e.source)))
@@ -258,7 +278,7 @@ fn run_checks(
         }
 
         // check selected meta items are using workspace inheritance
-        if args.package_workspace_meta {
+        if args.package_workspace_meta && workspace_usage {
             let package_meta = local_manifest.manifest.data.get("package").unwrap();
 
             for key in args_package_workspace_meta {

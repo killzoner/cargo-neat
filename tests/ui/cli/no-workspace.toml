@@ -1,4 +1,21 @@
-args = ["integration-tests/no-workspace"]
+args = ["integration-tests/no-workspace", "-m", "-p", "-f"]
 bin.name = "cargo-neat"
-stderr = ""
+stderr = """
+ DEBUG cargo_neat > Running from location "integration-tests/no-workspace"
+ DEBUG cargo_neat > Root workspace Cargo.toml: "[CWD]/integration-tests/no-workspace/Cargo.toml"
+ DEBUG cargo_neat > Workspace usage: false
+ DEBUG cargo_neat > Workspace members : ["no-workspace"]
+ DEBUG cargo_neat > Workspace meta-values : ["rust-version", "edition", "license", "homepage", "repository"]
+ DEBUG cargo_neat > Workspace dependencies : {}
+ DEBUG cargo_neat > Workspace opt in default features : {}
+ WARN  cargo_neat > Skipping "mandatory_workspace_dependencies" (-m) check because no [workspace] detected
+ WARN  cargo_neat > Skipping "package_workspace_meta" (-p) check because no [workspace] detected
+ INFO  cargo_neat > No unused workspace dependencies
+ INFO  cargo_neat > No non workspace dependencies
+ INFO  cargo_neat > No non workspace metadata
+ INFO  cargo_neat > No default-features enabled
+"""
 stdout = ""
+
+[env]
+add = { RUST_LOG = "debug" }
