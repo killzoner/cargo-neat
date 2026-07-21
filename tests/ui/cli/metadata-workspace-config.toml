@@ -3,6 +3,7 @@ bin.name = "cargo-neat"
 stderr = """
  DEBUG cargo_neat > Running from location "integration-tests/metadata-workspace-config"
  DEBUG cargo_neat > Root workspace Cargo.toml: "[CWD]/integration-tests/metadata-workspace-config/Cargo.toml"
+ DEBUG cargo_neat > Workspace usage: true
  DEBUG cargo_neat > Workspace members : ["first"]
  DEBUG cargo_neat > Workspace meta-values : ["edition", "version"]
  DEBUG cargo_neat > Workspace dependencies : {"anyhow"}
