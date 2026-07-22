@@ -3,7 +3,7 @@ authors = ["killzoner"]
 edition = "2024"
 name = "cargo-neat"
 resolver = "3"
-version = "0.5.1"
+version = "0.5.2"
 
 description = "Keep your cargo workspace neat: find unused dependencies and enforce workspace consistency"
 documentation = "https://docs.rs/cargo-neat"
