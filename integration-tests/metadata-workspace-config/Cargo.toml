@@ -10,4 +10,4 @@ anyhow = { version = "1.0.100", default-features = false }
 ignored = ["anyhow"]
 
 [workspace.metadata.cargo-neat]
-meta-values = ["edition", "version"]
+package-workspace-meta-values = ["edition", "version"]
