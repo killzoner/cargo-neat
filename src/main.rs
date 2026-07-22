@@ -127,7 +127,7 @@ fn run() -> CargoResult<bool> {
     let workspace_meta_values: Option<Vec<&str>> = workspace
         .custom_metadata()
         .and_then(|meta| meta.get("cargo-neat"))
-        .and_then(|cfg| cfg.get("meta-values"))
+        .and_then(|cfg| cfg.get("package-workspace-meta-values"))
         .and_then(|values| values.as_array())
         .map(|values| values.iter().filter_map(|v| v.as_str()).collect());
 
