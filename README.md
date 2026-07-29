@@ -11,9 +11,11 @@ A command to complement existing tools like [cargo-machete](https://github.com/b
 Features:
 
 - detect unused dependencies in `workspace.dependencies` when working with a cargo workspace
-- optionally enforce using only workspace dependency in your project (`-m` option)
-- optionally enforce using only workspace metadata for some sections in workspace packages (`-p` option). Metadata section values can be customized and currently defaults to `--package-workspace-meta-values "rust-version,edition,license,homepage,repository"` (also configurable via [Cargo.toml metadata](integration-tests/metadata-workspace-config/Cargo.toml#L13))
+- optionally enforce using only workspace dependency in your project (`-m` option)*
+- optionally enforce using only workspace metadata for some sections in workspace packages (`-p` option)*. Metadata section values can be customized and currently defaults to `--package-workspace-meta-values "rust-version,edition,license,homepage,repository"` (also configurable via [Cargo.toml metadata](integration-tests/metadata-workspace-config/Cargo.toml#L13))
 - optionally enforce opting out of default-features (`-f` option).
+
+<sup>* requires a `[workspace]`, skipped otherwise</sup>
 
 ## Installation
 
