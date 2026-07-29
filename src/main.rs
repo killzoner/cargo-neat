@@ -28,28 +28,28 @@ Exit code:
     2:  on error
 "#)]
 struct CliArgs {
-    /// print version.
+    /// print version
     #[argh(switch)]
     version: bool,
 
-    /// allow only workspace dependency (ie "workspace = true")
+    /// require dependencies to be inherited (ie "workspace = true")
     #[argh(switch, short = 'm')]
     mandatory_workspace_dependencies: bool,
 
-    /// path to directory that must be scanned.
+    /// path to directory that must be scanned
     #[argh(positional, greedy)]
     path: Option<PathBuf>,
 
-    /// mandatory workspace package metadata keys (ie "authors" for package.authors.workspace = true )
+    /// require declared package metadata keys to be inherited (ie "authors" for package.authors.workspace = true)
     #[argh(switch, short = 'p')]
     package_workspace_meta: bool,
 
-    /// keys for checking mandatory workspace package metadata,
-    /// resolved in order: cli, then workspace.metadata.cargo-neat.meta-values, then default (see README).
+    /// keys checked by --package-workspace-meta,
+    /// resolved in order: cli, then workspace.metadata.cargo-neat.package-workspace-meta-values, then default (see README)
     #[argh(option)]
     package_workspace_meta_values: Option<String>,
 
-    /// always use explicit feature (ie "default-features = false")
+    /// require opting out of default features (ie "default-features = false")
     #[argh(switch, short = 'f')]
     mandatory_no_default_features: bool,
 }
@@ -133,7 +133,7 @@ fn run() -> CargoResult<bool> {
 
     trace!("Workspace config meta-values : {:?}", workspace_meta_values);
 
-    // order: cli then [workspace.metadata.cargo-neat].meta-values then DEFAULT_PACKAGE_META
+    // order: cli then [workspace.metadata.cargo-neat].package-workspace-meta-values then DEFAULT_PACKAGE_META
     let args_package_workspace_meta: Vec<&str> = args_package_workspace_meta
         .or(workspace_meta_values)
         .unwrap_or_else(|| DEFAULT_PACKAGE_META.split(",").collect());

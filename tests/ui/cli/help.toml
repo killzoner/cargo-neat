@@ -13,19 +13,20 @@ Exit code:
     2:  on error
 
 Options:
-  --version         print version.
+  --version         print version
   -m, --mandatory-workspace-dependencies
-                    allow only workspace dependency (ie "workspace = true")
+                    require dependencies to be inherited (ie "workspace = true")
   -p, --package-workspace-meta
-                    mandatory workspace package metadata keys (ie "authors" for
-                    package.authors.workspace = true )
+                    require declared package metadata keys to be inherited (ie
+                    "authors" for package.authors.workspace = true)
   --package-workspace-meta-values
-                    keys for checking mandatory workspace package metadata,
-                    resolved in order: cli, then
-                    workspace.metadata.cargo-neat.meta-values, then default (see
-                    README).
+                    keys checked by --package-workspace-meta, resolved in order:
+                    cli, then
+                    workspace.metadata.cargo-neat.package-workspace-meta-values,
+                    then default (see README)
   -f, --mandatory-no-default-features
-                    always use explicit feature (ie "default-features = false")
+                    require opting out of default features (ie "default-features
+                    = false")
   --help, help      display usage information
 
 """
