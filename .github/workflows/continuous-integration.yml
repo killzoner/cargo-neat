@@ -67,7 +67,7 @@ jobs:
       - run: cargo fmt --all
       - uses: taiki-e/install-action@v2
         with:
-          tool: taplo-cli@0.9.3
+          tool: taplo-cli
       - name: Run cargo sort
         run : taplo format
       - name: Check for a diff
@@ -89,6 +89,9 @@ jobs:
         run: cargo deny -L error --workspace check bans advisories sources
   install-action-check:
     runs-on: ubuntu-latest
+    concurrency:
+      cancel-in-progress: true
+      group: ${{ github.workflow }}-install-action-check-${{ github.event.pull_request.number || github.ref }}
     steps:
       - uses: actions/checkout@v7
       - uses: taiki-e/install-action@v2
@@ -96,3 +99,4 @@ jobs:
           tool: cargo-neat
       - working-directory: integration-tests/clean
         run: cargo neat -m -p -f
+      - run: cargo neat -f
