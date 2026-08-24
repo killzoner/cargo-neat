@@ -14,7 +14,7 @@ repository = "https://github.com/killzoner/cargo-neat"
 [dependencies]
 anyhow = { version = "1.0.102", default-features = false }
 argh = { version = "0.1.19", default-features = false, features = ["help"] }
-cargo = { version = "0.98.0", default-features = false, features = [
+cargo = { version = "0.99.0", default-features = false, features = [
   "http-transport-curl",
 ] }
 log = { version = "0.4.32", default-features = false }
