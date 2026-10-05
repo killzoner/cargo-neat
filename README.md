@@ -13,9 +13,10 @@ Features:
 - detect unused dependencies in `workspace.dependencies`
 - optionally require dependencies to be inherited (`-m` option)*
 - optionally require declared package metadata keys to be inherited (`-p` option)*. Keys default to [DEFAULT_PACKAGE_META](https://github.com/killzoner/cargo-neat/blob/master/src/main.rs#L19), set via `--package-workspace-meta-values` or [Cargo.toml metadata](https://github.com/killzoner/cargo-neat/blob/master/integration-tests/metadata-workspace-config/Cargo.toml#L13)
-- optionally require opting out of default features (`-f` option)
+- optionally require opting out of default features (`-f` option)**
 
-<sup>* requires a `[workspace]`, skipped otherwise</sup>
+<sup>* requires a `[workspace]`, skipped otherwise</sup><br>
+<sup>** also works without a `[workspace]`</sup>
 
 ## Installation
 
@@ -58,9 +59,10 @@ Non workspace metadata :
 └── /home/user/my-workspace/crate1/Cargo.toml
     └── edition
 
-Workspace default-features enabled :
+Default-features enabled :
 ├── /home/user/my-workspace/Cargo.toml
-│   └── trycmd
+│   ├── trycmd (workspace.dependencies)
+│   └── trycmd (dev-dependencies)
 └── /home/user/my-workspace/crate1/Cargo.toml
     └── argh
 ```

@@ -1,0 +1,14 @@
+args = ["integration-tests/no-workspace-default-features", "-f"]
+bin.name = "cargo-neat"
+status.code = 1
+stderr = """
+Default-features enabled :
+└── [CWD]/integration-tests/no-workspace-default-features/Cargo.toml
+    ├── anyhow (dependencies)
+    ├── clappen
+    ├── thiserror
+    ├── anyhow (dev-dependencies)
+    └── trycmd
+
+"""
+stdout = ""

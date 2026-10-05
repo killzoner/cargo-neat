@@ -183,7 +183,7 @@ fn run_checks(
     let mut mandatory_workspace_dependencies_issues: HashMap<InternedString, Vec<String>> =
         HashMap::new();
     let mut mandatory_workspace_meta_issues: HashMap<InternedString, Vec<String>> = HashMap::new();
-    let mut default_features_workspace_issues: HashMap<InternedString, Vec<String>> =
+    let mut default_features_workspace_issues: HashMap<InternedString, Vec<(String, String)>> =
         HashMap::new();
 
     // check dependencies always opt out from default-features in root package
@@ -208,7 +208,7 @@ fn run_checks(
                 root_cargo_toml,
                 workspace_default_features_true
                     .iter()
-                    .map(|e| e.to_string())
+                    .map(|e| (e.to_string(), "workspace.dependencies".to_string()))
                     .collect(),
             );
         }
@@ -283,16 +283,17 @@ fn run_checks(
         if args.mandatory_no_default_features {
             let deps: Vec<_> = local_manifest
                 .get_dependencies(workspace, &Features::default())
-                .flat_map(|dep| dep.2.map(|e| (dep.0, e.default_features)))
-                .filter_map(|dep| dep.1.map(|e| (dep.0, e)))
+                .flat_map(|dep| dep.2.map(|e| (dep.0, dep.1, e.default_features, e.source)))
                 .collect();
 
-            for (dep, default_features) in deps {
-                if default_features {
+            for (dep, dep_table, default_features, source) in deps {
+                // inherited deps are reported on [workspace.dependencies]
+                let inherited = matches!(source, Some(Source::Workspace(_)));
+                if default_features.unwrap_or(!inherited) {
                     let values = default_features_workspace_issues
                         .entry(pkg_manifest_path)
                         .or_insert(vec![]);
-                    values.push(dep);
+                    values.push((dep, dep_table.to_table().join(".")));
                 }
             }
         }
@@ -366,14 +367,30 @@ fn run_checks(
         }
 
         if !default_features_workspace_issues.is_empty() {
-            let mut default_features_workspace_issues: Vec<_> =
-                default_features_workspace_issues.into_iter().collect();
+            let mut default_features_workspace_issues: Vec<_> = default_features_workspace_issues
+                .into_iter()
+                .map(|(manifest_path, deps)| {
+                    // name the table only for a dep found in more than one table
+                    let deps = deps
+                        .iter()
+                        .map(|(dep, table)| {
+                            let duplicate_dep =
+                                deps.iter().filter(|(name, _)| name == dep).count() > 1;
+                            if duplicate_dep {
+                                return format!("{dep} ({table})");
+                            }
+                            dep.clone()
+                        })
+                        .collect();
+                    (manifest_path, deps)
+                })
+                .collect();
             default_features_workspace_issues.sort();
 
             eprintln!(
                 "{}",
                 tree(
-                    InternedString::new("Workspace default-features enabled :"),
+                    InternedString::new("Default-features enabled :"),
                     &default_features_workspace_issues
                 )?
             );
