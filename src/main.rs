@@ -5,11 +5,11 @@
 
 use anyhow::anyhow;
 use cargo::CargoResult;
-use cargo::core::{EitherManifest, Features, SourceId, Workspace};
-use cargo::util::context::GlobalContext;
+use cargo::context::GlobalContext;
 use cargo::util::interning::InternedString;
-use cargo::util::toml::read_manifest;
-use cargo::util::toml_mut::dependency::Source;
+use cargo::workspace::editor::dependency::Source;
+use cargo::workspace::parser::read_manifest;
+use cargo::workspace::{EitherManifest, Features, SourceId, Workspace};
 use log::{debug, info, trace, warn};
 use std::collections::{BTreeSet, HashMap};
 use std::path::PathBuf;
@@ -111,7 +111,7 @@ fn run() -> CargoResult<bool> {
 
     debug!("Root workspace Cargo.toml: {:?}", root_cargo_toml);
 
-    let mut workspace = cargo::core::Workspace::new(root_cargo_toml, &gctx)?;
+    let mut workspace = cargo::workspace::Workspace::new(root_cargo_toml, &gctx)?;
     let workspace_usage = workspace
         .load_workspace_config()
         .map(|e| e.is_some())
@@ -257,7 +257,7 @@ fn run_checks(
         }
 
         let local_manifest =
-            cargo::util::toml_mut::manifest::LocalManifest::try_new(pkg.manifest_path())?;
+            cargo::workspace::editor::manifest::LocalManifest::try_new(pkg.manifest_path())?;
 
         // check dependencies always inherited from workspace
         if args.mandatory_workspace_dependencies && workspace_usage {
