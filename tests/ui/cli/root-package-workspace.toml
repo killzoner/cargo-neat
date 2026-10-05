@@ -5,8 +5,10 @@ stderr = """
 Non workspace dependencies :
 ├── [CWD]/integration-tests/root-package-workspace/Cargo.toml
 │   └── anyhow
-└── [CWD]/integration-tests/root-package-workspace/second/Cargo.toml
-    └── clappen
+├── [CWD]/integration-tests/root-package-workspace/second/Cargo.toml
+│   └── clappen
+└── [CWD]/integration-tests/root-package-workspace/third/Cargo.toml
+    └── argh
 
 Non workspace metadata :
 ├── [CWD]/integration-tests/root-package-workspace/Cargo.toml
@@ -15,10 +17,13 @@ Non workspace metadata :
     ├── edition
     └── homepage
 
-Workspace default-features enabled :
-└── [CWD]/integration-tests/root-package-workspace/Cargo.toml
-    ├── anyhow
-    └── clappen
+Default-features enabled :
+├── [CWD]/integration-tests/root-package-workspace/Cargo.toml
+│   ├── anyhow (workspace.dependencies)
+│   ├── anyhow (dependencies)
+│   └── clappen
+└── [CWD]/integration-tests/root-package-workspace/third/Cargo.toml
+    └── argh
 
 """
 stdout = ""

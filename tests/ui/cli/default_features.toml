@@ -6,7 +6,7 @@ Unused workspace dependencies :
 └── [CWD]/integration-tests/default-features/Cargo.toml
     └── thiserror
 
-Workspace default-features enabled :
+Default-features enabled :
 ├── [CWD]/integration-tests/default-features/Cargo.toml
 │   ├── anyhow
 │   ├── thiserror

@@ -4,7 +4,8 @@ homepage.workspace = true
 name = "third"
 
 [dependencies]
+argh = { version = "0.1.13" }
 clappen = { workspace = true, default-features = false }
 
 [package.metadata.cargo-machete]
-ignored = ["clappen"]
+ignored = ["argh", "clappen"]

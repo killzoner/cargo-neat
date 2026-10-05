@@ -1,0 +1,19 @@
+[package]
+edition = "2024"
+name = "no-workspace-default-features"
+version = "0.1.0"
+
+[dependencies]
+anyhow = { version = "1.0.100" }                         # default-features true
+argh = { version = "0.1.13", default-features = false }
+clappen = { version = "0.1.3", default-features = true } # default-features true
+
+[dev-dependencies]
+anyhow = { version = "1.0.100" } # default-features true
+trycmd = { version = "1.0.1" }   # default-features true
+
+[target.'cfg(windows)'.dependencies]
+thiserror = { version = "2.0.18" } # default-features true
+
+[package.metadata.cargo-machete]
+ignored = ["anyhow", "argh", "clappen", "thiserror", "trycmd"]
