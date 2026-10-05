@@ -8,8 +8,7 @@ use cargo::CargoResult;
 use cargo::context::GlobalContext;
 use cargo::util::interning::InternedString;
 use cargo::workspace::editor::dependency::Source;
-use cargo::workspace::parser::read_manifest;
-use cargo::workspace::{EitherManifest, Features, SourceId, Workspace};
+use cargo::workspace::{Features, Workspace};
 use log::{debug, info, trace, warn};
 use std::collections::{BTreeSet, HashMap};
 use std::path::PathBuf;
@@ -140,10 +139,6 @@ fn run() -> CargoResult<bool> {
 
     debug!("Workspace meta-values : {:?}", args_package_workspace_meta);
 
-    // read virtual manifest
-    let source_id = SourceId::for_manifest_path(root_cargo_toml)?;
-    let manifest = read_manifest(root_cargo_toml, source_id, &gctx)?;
-
     let root_cargo_toml = InternedString::new(
         root_cargo_toml
             .to_str()
@@ -153,7 +148,6 @@ fn run() -> CargoResult<bool> {
     run_checks(
         &workspace,
         workspace_usage,
-        &manifest,
         root_cargo_toml,
         &args,
         &args_package_workspace_meta,
@@ -163,28 +157,23 @@ fn run() -> CargoResult<bool> {
 fn run_checks(
     workspace: &Workspace,
     workspace_usage: bool,
-    manifest: &EitherManifest,
     root_cargo_toml: InternedString,
     args: &CliArgs,
     args_package_workspace_meta: &[&str],
 ) -> CargoResult<bool> {
-    let document = match manifest {
-        EitherManifest::Real(m) => m.document(),
-        EitherManifest::Virtual(v) => v.document(),
-    }
-    .ok_or(anyhow!("cannot get manifest document"))?;
+    let original_toml = workspace
+        .root_maybe()
+        .original_toml()
+        .ok_or(anyhow!("cannot get manifest toml"))?;
 
-    let workspace_dependencies_toml = document
-        .get_ref()
-        .get("workspace")
-        .and_then(|e| e.get_ref().get("dependencies"))
-        .and_then(|e| e.get_ref().as_table());
+    let workspace_dependencies_toml = original_toml
+        .workspace
+        .as_ref()
+        .and_then(|e| e.dependencies.as_ref());
 
     let workspace_dependencies = workspace_dependencies_toml
         .map(|e| {
-            e.keys()
-                .map(|e| e.clone().into_inner())
-                .collect::<BTreeSet<_>>() // use BTreeSet to keep deterministic order for debug print
+            e.keys().map(|e| e.as_str()).collect::<BTreeSet<_>>() // use BTreeSet to keep deterministic order for debug print
         })
         .unwrap_or_default();
 
@@ -205,15 +194,8 @@ fn run_checks(
         let workspace_default_features_true = workspace_dependencies_toml
             .into_iter()
             .flatten()
-            .map(|(name, value)| {
-                let default_features = value
-                    .get_ref()
-                    .get("default-features")
-                    .and_then(|v| v.get_ref().as_bool());
-                (name.get_ref(), default_features)
-            })
-            .filter(|(_package, default_features)| default_features.unwrap_or(true))
-            .map(|e| e.0)
+            .filter(|(_package, dep)| dep.default_features().unwrap_or(true))
+            .map(|(name, _)| name.as_str())
             .collect::<BTreeSet<_>>(); // use BTreeSet to keep deterministic order for debug print
 
         debug!(
