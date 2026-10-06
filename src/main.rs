@@ -103,14 +103,13 @@ fn run() -> CargoResult<bool> {
 
     let gctx = GlobalContext::default()?;
     // Load the workspace from the current directory
-    let ws = Workspace::new(&args_path.join("Cargo.toml"), &gctx)?;
+    let mut workspace = Workspace::new(&args_path.join("Cargo.toml"), &gctx)?;
 
     // Get the root manifest path (root Cargo.toml)
-    let root_cargo_toml = ws.root_manifest();
+    let root_cargo_toml = workspace.root_manifest().to_path_buf();
 
     debug!("Root workspace Cargo.toml: {:?}", root_cargo_toml);
 
-    let mut workspace = cargo::workspace::Workspace::new(root_cargo_toml, &gctx)?;
     let workspace_usage = workspace
         .load_workspace_config()
         .map(|e| e.is_some())
